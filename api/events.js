@@ -1,7 +1,11 @@
-import events from '../events.json';
+import fs from 'fs';
+import path from 'path';
 
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const eventsPath = path.join(process.cwd(), 'events.json');
+  const events = JSON.parse(fs.readFileSync(eventsPath, 'utf-8'));
 
   const list = events.events.map(e => ({
     id: e.id,

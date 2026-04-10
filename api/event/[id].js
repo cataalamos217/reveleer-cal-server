@@ -1,4 +1,5 @@
-import events from '../events.json';
+import fs from 'fs';
+import path from 'path';
 
 function toUTC(date, time, tz) {
   // Chicago CDT is UTC-5 in April
@@ -28,6 +29,9 @@ export default function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+
+  const eventsPath = path.join(process.cwd(), 'events.json');
+  const events = JSON.parse(fs.readFileSync(eventsPath, 'utf-8'));
 
   const { id } = req.query;
 
