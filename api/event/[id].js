@@ -20,6 +20,11 @@ function enc(s) {
   return encodeURIComponent(s || '');
 }
 
+// Outlook/Office 365 compose URLs treat body as HTML — use <br> for line breaks
+function encOutlook(s) {
+  return encodeURIComponent((s || '').replace(/\n/g, '<br>'));
+}
+
 module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -63,8 +68,8 @@ module.exports = function handler(req, res) {
   const links = {
     google:     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(event.title)}&dates=${gcStart}/${gcEnd}&details=${enc(event.description)}&location=${enc(event.location)}`,
     outlook:    event.icsUrl,
-    outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${enc(event.description)}&location=${enc(event.location)}`,
-    office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${enc(event.description)}&location=${enc(event.location)}`,
+    outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
+    office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
     yahoo:      `https://calendar.yahoo.com/?v=60&title=${enc(event.title)}&st=${gcStart}&et=${gcEnd}&desc=${enc(event.description)}&in_loc=${enc(event.location)}`,
     apple:      event.icsUrl
   };
