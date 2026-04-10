@@ -34,19 +34,38 @@
 
   main{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem;}
 
-  .section-title{font-family:'Merriweather',serif;font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:2rem 0 .75rem;padding-bottom:.5rem;border-bottom:2px solid var(--teal);}
+  /* Conference folder */
+  .conference-folder{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+  .conference-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;cursor:pointer;user-select:none;transition:background .15s;}
+  .conference-header:hover{background:#f8f9fa;}
+  .conference-header-left{display:flex;align-items:center;gap:12px;}
+  .folder-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--teal),#1a9a9d);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .folder-icon svg{width:18px;height:18px;}
+  .conference-name{font-family:'Merriweather',serif;font-size:15px;font-weight:700;color:var(--text);}
+  .conference-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+  .conference-right{display:flex;align-items:center;gap:10px;}
+  .slot-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#E8F5E9;color:#1b5e20;border:1px solid #81C784;}
+  .chevron{width:20px;height:20px;color:var(--muted);transition:transform .25s;}
+  .chevron.open{transform:rotate(180deg);}
 
-  .event-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:.75rem;transition:box-shadow .15s;}
-  .event-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07);}
-  .event-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:.9rem;}
-  .event-time{font-size:16px;font-weight:700;color:var(--text);}
+  .conference-body{border-top:1px solid var(--border);padding:1.25rem 1.5rem 1.5rem;}
+  .conference-body.collapsed{display:none;}
+
+  /* Date section inside folder */
+  .day-header{font-family:'Merriweather',serif;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:1.25rem 0 .6rem;padding-bottom:.4rem;border-bottom:2px solid var(--teal);}
+  .day-header:first-child{margin-top:0;}
+
+  .event-card{background:var(--gray);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:.6rem;transition:box-shadow .15s;}
+  .event-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.07);background:var(--white);}
+  .event-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:.75rem;}
+  .event-time{font-size:15px;font-weight:700;color:var(--text);}
   .event-date-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
   .apr20{background:#FFF8E1;color:#92400e;border:1px solid #F8CA44;}
   .apr21{background:#E8F5E9;color:#1b5e20;border:1px solid #81C784;}
   .apr22{background:#E3F2FD;color:#0d47a1;border:1px solid #64B5F6;}
 
-  .links-grid{display:flex;gap:8px;flex-wrap:wrap;}
-  .link-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;font-size:12px;font-weight:700;font-family:'Lato',sans-serif;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;text-decoration:none;transition:all .15s;}
+  .links-grid{display:flex;gap:7px;flex-wrap:wrap;}
+  .link-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;font-weight:700;font-family:'Lato',sans-serif;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;text-decoration:none;transition:all .15s;}
   .link-btn:hover{border-color:var(--teal);color:var(--teal);}
   .link-btn.google:hover{border-color:#1A73E8;color:#1A73E8;}
   .link-btn.outlook{border-color:#0078D4;color:#0078D4;background:#E3F2FD;}
@@ -54,7 +73,7 @@
   .link-btn.o365:hover{border-color:#D83B01;color:#D83B01;}
   .link-btn.yahoo:hover{border-color:#6001D2;color:#6001D2;}
   .link-btn.apple{border-color:#555;color:#555;background:#F2F3F4;}
-  .copy-btn{padding:5px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid var(--border);border-radius:6px;background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
+  .copy-btn{padding:4px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid var(--border);border-radius:6px;background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
   .copy-btn:hover{border-color:var(--teal);color:var(--teal);}
   .copy-btn.copied{border-color:var(--teal);color:var(--teal);}
 
@@ -93,6 +112,7 @@
   <p>Hosted event data for all calendar platforms — including Office 365</p>
   <div class="hero-stats">
     <div class="stat"><div class="stat-num" id="event-count">—</div><div class="stat-lbl">Events loaded</div></div>
+    <div class="stat"><div class="stat-num" id="conf-count">—</div><div class="stat-lbl">Conferences</div></div>
     <div class="stat"><div class="stat-num">6</div><div class="stat-lbl">Platforms</div></div>
     <div class="stat"><div class="stat-num">Free</div><div class="stat-lbl">Hosting cost</div></div>
   </div>
@@ -135,52 +155,123 @@ function fmt12(t){
   return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
 }
 
+function toggleFolder(body, chevron){
+  const collapsed = body.classList.toggle('collapsed');
+  chevron.classList.toggle('open', !collapsed);
+}
+
 async function loadEvents(){
   try{
     const res=await fetch('/api/events');
     const data=await res.json();
-    renderEvents(data.events);
     document.getElementById('event-count').textContent=data.total;
+    await renderEvents(data.events);
   }catch(e){
-    document.getElementById('events-container').innerHTML='<div class="loading">Error loading events. Make sure the API is running.</div>';
+    document.getElementById('events-container').innerHTML='<div class="loading">Error loading events.</div>';
   }
 }
 
 async function renderEvents(events){
   const container=document.getElementById('events-container');
   container.innerHTML='';
-  let currentDay='';
 
+  // Group by conference
+  const byConf = {};
   for(const ev of events){
-    const detail=await fetch(`/api/event/${ev.id}`).then(r=>r.json());
+    const conf = ev.conference || 'Other';
+    if(!byConf[conf]) byConf[conf]=[];
+    byConf[conf].push(ev);
+  }
 
-    if(ev.date!==currentDay){
-      currentDay=ev.date;
-      const d=document.createElement('div');
-      d.className='section-title';
-      d.textContent=DAY_NAMES[ev.date]+', 2026';
-      container.appendChild(d);
-    }
+  document.getElementById('conf-count').textContent = Object.keys(byConf).length;
 
-    const card=document.createElement('div');
-    card.className='event-card';
-    const dayClass=DAY_LABELS[ev.date]||'';
-    card.innerHTML=`
-      <div class="event-header">
-        <span class="event-time">${fmt12(ev.startTime)} – ${fmt12(ev.endTime)}</span>
-        <span class="event-date-badge ${dayClass}">${DAY_NAMES[ev.date]}</span>
+  for(const [confName, confEvents] of Object.entries(byConf)){
+    // Fetch all event details for this conference
+    const details = await Promise.all(
+      confEvents.map(ev => fetch(`/api/event/${ev.id}`).then(r=>r.json()))
+    );
+
+    // Build date range label
+    const dates = [...new Set(confEvents.map(e=>e.date))].sort();
+    const d0 = dates[0], d1 = dates[dates.length-1];
+    const dateRange = dates.length===1
+      ? DAY_NAMES[d0]+', 2026'
+      : `${DAY_NAMES[d0]} – ${DAY_NAMES[d1]}, 2026`;
+
+    // Folder wrapper
+    const folder = document.createElement('div');
+    folder.className='conference-folder';
+
+    const body = document.createElement('div');
+    body.className='conference-body'; // starts open
+
+    const chevron = document.createElement('svg');
+    chevron.setAttribute('viewBox','0 0 24 24');
+    chevron.setAttribute('fill','none');
+    chevron.setAttribute('stroke','currentColor');
+    chevron.setAttribute('stroke-width','2');
+    chevron.setAttribute('stroke-linecap','round');
+    chevron.setAttribute('stroke-linejoin','round');
+    chevron.className='chevron open';
+    chevron.innerHTML='<polyline points="6 9 12 15 18 9"></polyline>';
+
+    const header = document.createElement('div');
+    header.className='conference-header';
+    header.innerHTML=`
+      <div class="conference-header-left">
+        <div class="folder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="conference-name">${confName}</div>
+          <div class="conference-meta">${dateRange} &nbsp;·&nbsp; ${confEvents.length} time slots</div>
+        </div>
       </div>
-      <div class="links-grid">
-        <a class="link-btn google" href="${detail.links.google}" target="_blank">Google</a>
-        <a class="link-btn outlook" href="${detail.links.outlook}" target="_blank">Outlook</a>
-        <a class="link-btn outlookcom" href="${detail.links.outlookcom}" target="_blank">Outlook.com</a>
-        <a class="link-btn o365" href="${detail.links.office365}" target="_blank">Office 365</a>
-        <a class="link-btn yahoo" href="${detail.links.yahoo}" target="_blank">Yahoo</a>
-        <a class="link-btn apple" href="${detail.links.apple}" target="_blank">Apple</a>
-        <button class="copy-btn" onclick="copyO365('${detail.links.office365.replace(/'/g,"\\'")}',this)">Copy O365 link</button>
+      <div class="conference-right">
+        <span class="slot-badge">${confEvents.length} slots</span>
       </div>
     `;
-    container.appendChild(card);
+    header.appendChild(chevron);
+    header.addEventListener('click', ()=>toggleFolder(body, chevron));
+
+    // Render events by day inside body
+    let currentDay='';
+    confEvents.forEach((ev, i)=>{
+      const detail = details[i];
+      if(ev.date!==currentDay){
+        currentDay=ev.date;
+        const dh=document.createElement('div');
+        dh.className='day-header';
+        dh.textContent=DAY_NAMES[ev.date]+', 2026';
+        body.appendChild(dh);
+      }
+
+      const card=document.createElement('div');
+      card.className='event-card';
+      const dayClass=DAY_LABELS[ev.date]||'';
+      card.innerHTML=`
+        <div class="event-header">
+          <span class="event-time">${fmt12(ev.startTime)} – ${fmt12(ev.endTime)}</span>
+          <span class="event-date-badge ${dayClass}">${DAY_NAMES[ev.date]}</span>
+        </div>
+        <div class="links-grid">
+          <a class="link-btn google" href="${detail.links.google}" target="_blank">Google</a>
+          <a class="link-btn outlook" href="${detail.links.outlook}" target="_blank">Outlook</a>
+          <a class="link-btn outlookcom" href="${detail.links.outlookcom}" target="_blank">Outlook.com</a>
+          <a class="link-btn o365" href="${detail.links.office365}" target="_blank">Office 365</a>
+          <a class="link-btn yahoo" href="${detail.links.yahoo}" target="_blank">Yahoo</a>
+          <a class="link-btn apple" href="${detail.links.apple}" target="_blank">Apple</a>
+          <button class="copy-btn" onclick="copyO365('${detail.links.office365.replace(/'/g,"\\'")}',this)">Copy O365 link</button>
+        </div>
+      `;
+      body.appendChild(card);
+    });
+
+    folder.appendChild(header);
+    folder.appendChild(body);
+    container.appendChild(folder);
   }
 }
 
@@ -190,12 +281,6 @@ function copyO365(url,btn){
     btn.classList.add('copied');
     setTimeout(()=>{btn.textContent='Copy O365 link';btn.classList.remove('copied');},2000);
   });
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
 loadEvents();

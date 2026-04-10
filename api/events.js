@@ -10,6 +10,7 @@ module.exports = function handler(req, res) {
   const list = data.events.map(e => ({
     id: e.id,
     title: e.title,
+    conference: e.conference,
     date: e.date,
     startTime: e.startTime,
     endTime: e.endTime,
