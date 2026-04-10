@@ -10,6 +10,16 @@ function enc(s) {
   return encodeURIComponent(s || '');
 }
 
+// Outlook compose needs HTML line breaks, not %0A
+function encOutlook(s) {
+  return encodeURIComponent((s || '').replace(/\n/g, '<br>'));
+}
+
+// Local CT time with CDT offset for Outlook compose URLs
+function toLocal(date, time) {
+  return `${date}T${time}:00-05:00`;
+}
+
 module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -48,14 +58,15 @@ module.exports = function handler(req, res) {
   const baseUrl  = `https://${req.headers.host}`;
   const eventUrl = `${baseUrl}/api/event/${event.id}`;
 
-  const icalUrl = `${baseUrl}/api/event/${event.id}?format=ical`;
+  const icalUrl    = `${baseUrl}/api/event/${event.id}?format=ical`;
+  const localStart = toLocal(event.date, event.startTime);
+  const localEnd   = toLocal(event.date, event.endTime);
 
   const links = {
     google:     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(event.title)}&dates=${gcStart}/${gcEnd}&details=${enc(event.description)}&location=${enc(event.location)}&ctz=America%2FChicago`,
-    // Vercel ical endpoint — not HubSpot-hosted, so HubSpot won't flag as "File" type link
     outlook:    icalUrl,
-    outlookcom: icalUrl,
-    office365:  icalUrl,
+    outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
+    office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
     yahoo:      `https://calendar.yahoo.com/?v=60&title=${enc(event.title)}&st=${gcStart}&et=${gcEnd}&desc=${enc(event.description)}&in_loc=${enc(event.location)}`,
     apple:      icalUrl
   };
