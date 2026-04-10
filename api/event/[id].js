@@ -1,26 +1,20 @@
 const fs = require('fs');
 const path = require('path');
 
-function toUTC(date, time) {
-  // Chicago CDT is UTC-5 in April
-  const offset = 5;
-  const [h, m] = time.split(':').map(Number);
-  const utcH = (h + offset) % 24;
-  return `${date}T${String(utcH).padStart(2,'0')}:${String(m).padStart(2,'0')}:00Z`;
+// Local CT time for Google Calendar (no Z = floating, ctz pins it to Chicago)
+function toGCal(date, time) {
+  return `${date.replace(/-/g,'')}T${time.replace(':','')}00`;
 }
 
-function toGCal(date, time) {
-  const offset = 5;
-  const [h, m] = time.split(':').map(Number);
-  const utcH = (h + offset) % 24;
-  return `${date.replace(/-/g,'')}T${String(utcH).padStart(2,'0')}${String(m).padStart(2,'0')}00Z`;
+// ISO 8601 with CDT offset (-05:00) for Outlook/Office 365
+function toLocal(date, time) {
+  return `${date}T${time}:00-05:00`;
 }
 
 function enc(s) {
   return encodeURIComponent(s || '');
 }
 
-// Outlook/Office 365 compose URLs treat body as HTML — use <br> for line breaks
 function encOutlook(s) {
   return encodeURIComponent((s || '').replace(/\n/g, '<br>'));
 }
@@ -57,19 +51,21 @@ module.exports = function handler(req, res) {
     return res.status(404).json({ error: 'Event not found' });
   }
 
-  const utcStart = toUTC(event.date, event.startTime);
-  const utcEnd   = toUTC(event.date, event.endTime);
-  const gcStart  = toGCal(event.date, event.startTime);
-  const gcEnd    = toGCal(event.date, event.endTime);
+  const gcStart    = toGCal(event.date, event.startTime);
+  const gcEnd      = toGCal(event.date, event.endTime);
+  const localStart = toLocal(event.date, event.startTime);
+  const localEnd   = toLocal(event.date, event.endTime);
 
-  const baseUrl = `https://${req.headers.host}`;
+  const baseUrl  = `https://${req.headers.host}`;
   const eventUrl = `${baseUrl}/api/event/${event.id}`;
 
   const links = {
-    google:     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(event.title)}&dates=${gcStart}/${gcEnd}&details=${enc(event.description)}&location=${enc(event.location)}`,
+    // ctz=America/Chicago pins the event to CT regardless of viewer's timezone
+    google:     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(event.title)}&dates=${gcStart}/${gcEnd}&details=${enc(event.description)}&location=${enc(event.location)}&ctz=America%2FChicago`,
     outlook:    event.icsUrl,
-    outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
-    office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${utcStart}&enddt=${utcEnd}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
+    // -05:00 offset tells Outlook this is CDT — shows 4:00 PM CT for everyone
+    outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
+    office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
     yahoo:      `https://calendar.yahoo.com/?v=60&title=${enc(event.title)}&st=${gcStart}&et=${gcEnd}&desc=${enc(event.description)}&in_loc=${enc(event.location)}`,
     apple:      event.icsUrl
   };
