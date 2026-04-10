@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-function toUTC(date, time, tz) {
+function toUTC(date, time) {
   // Chicago CDT is UTC-5 in April
   const offset = 5;
   const [h, m] = time.split(':').map(Number);
@@ -20,8 +20,7 @@ function enc(s) {
   return encodeURIComponent(s || '');
 }
 
-export default function handler(req, res) {
-  // CORS headers so Office 365 can fetch
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -31,13 +30,12 @@ export default function handler(req, res) {
   }
 
   const eventsPath = path.join(process.cwd(), 'events.json');
-  const events = JSON.parse(fs.readFileSync(eventsPath, 'utf-8'));
+  const data = JSON.parse(fs.readFileSync(eventsPath, 'utf-8'));
 
   const { id } = req.query;
 
   if (!id) {
-    // Return all events list
-    const list = events.events.map(e => ({
+    const list = data.events.map(e => ({
       id: e.id,
       title: e.title,
       date: e.date,
@@ -48,7 +46,7 @@ export default function handler(req, res) {
     return res.status(200).json({ events: list });
   }
 
-  const event = events.events.find(e => e.id === id);
+  const event = data.events.find(e => e.id === id);
 
   if (!event) {
     return res.status(404).json({ error: 'Event not found' });
@@ -71,12 +69,9 @@ export default function handler(req, res) {
     apple:      event.icsUrl
   };
 
-  // Check if Office 365 is requesting event data (they send specific headers)
   const accept = req.headers['accept'] || '';
-  const isCalendarFetch = accept.includes('text/calendar') || accept.includes('application/json');
 
-  if (isCalendarFetch || req.query.format === 'ical') {
-    // Serve as iCal for Office 365 to parse
+  if (accept.includes('text/calendar') || req.query.format === 'ical') {
     const ics = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -107,10 +102,5 @@ export default function handler(req, res) {
     return res.status(200).send(ics);
   }
 
-  // Return JSON with all event data + links
-  return res.status(200).json({
-    ...event,
-    links,
-    eventUrl
-  });
-}
+  return res.status(200).json({ ...event, links, eventUrl });
+};
