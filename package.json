@@ -1,0 +1,9 @@
+{
+  "name": "reveleer-calendar-server",
+  "version": "1.0.0",
+  "description": "Reveleer calendar link server — hosts event data for all calendar platforms",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  }
+}
