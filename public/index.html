@@ -6,6 +6,16 @@
 <title>Calendeer — Calendar Link Server</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
+  .pw-screen{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:9999;}
+  .pw-box{background:var(--white);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+  .pw-logo{font-family:'Merriweather',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:.25rem;}
+  .pw-logo span{color:var(--teal);}
+  .pw-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;}
+  .pw-input{width:100%;padding:10px 14px;font-family:'Lato',sans-serif;font-size:14px;border:1.5px solid var(--border);border-radius:8px;outline:none;margin-bottom:.75rem;transition:border .15s;}
+  .pw-input:focus{border-color:var(--teal);}
+  .pw-btn{width:100%;padding:.75rem;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;}
+  .pw-btn:hover{opacity:.88;}
+  .pw-error{font-size:12px;color:#E5573F;margin-top:.5rem;display:none;}
   :root {
     --red:#E5573F; --teal:#25B5B8; --yellow:#F8CA44;
     --dark:#49545E; --gray:#F2F3F4; --white:#fff;
@@ -130,6 +140,16 @@
 </style>
 </head>
 <body>
+
+<div class="pw-screen" id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-logo">Calend<span>ee</span>r</div>
+    <div class="pw-sub">Enter password to continue</div>
+    <input class="pw-input" type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button class="pw-btn" onclick="checkPw()">Enter</button>
+    <div class="pw-error" id="pw-error">Incorrect password. Try again.</div>
+  </div>
+</div>
 
 <header>
   <div class="logo">
@@ -458,7 +478,24 @@ function generateICS(title, dtStart, dtEnd, location, desc, tz){
   return URL.createObjectURL(blob);
 }
 
-loadEvents();
+// ── Password ──────────────────────────────────────────────
+const PW = 'Reveleer2026links';
+function checkPw(){
+  const val = document.getElementById('pw-input').value;
+  if(val === PW){
+    document.getElementById('pw-screen').style.display='none';
+    sessionStorage.setItem('calendeer_auth','1');
+    loadEvents();
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+if(sessionStorage.getItem('calendeer_auth')==='1'){
+  document.getElementById('pw-screen').style.display='none';
+  loadEvents();
+}
 </script>
 </body>
 </html>
