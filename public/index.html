@@ -480,14 +480,23 @@ function toDateTimeLocal(date, time, tz){
 }
 
 function toOffsetISO(date, time, tz){
-  const offsets = {
-    'America/New_York': '-04:00',
-    'America/Chicago': '-05:00',
-    'America/Denver': '-06:00',
-    'America/Los_Angeles': '-07:00',
-    'UTC': '+00:00'
-  };
-  const off = offsets[tz] || '+00:00';
+  // Use Intl to get the real UTC offset for this date/time in the given timezone
+  const [y,m,d] = date.split('-').map(Number);
+  const [h,min] = time.split(':').map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d, h, min));
+  // Get the offset by comparing UTC time to local time in target tz
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit', hour12: false
+  }).formatToParts(dt);
+  const get = type => parts.find(p=>p.type===type)?.value;
+  const localDt = new Date(`${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}Z`);
+  const diffMs = dt - localDt;
+  const diffH = Math.floor(Math.abs(diffMs)/3600000);
+  const diffM = Math.floor((Math.abs(diffMs)%3600000)/60000);
+  const sign = diffMs >= 0 ? '+' : '-';
+  const off = `${sign}${String(diffH).padStart(2,'0')}:${String(diffM).padStart(2,'0')}`;
   return `${date}T${time}:00${off}`;
 }
 
