@@ -327,6 +327,15 @@
       <div class="form-group"><label>Date</label><input type="date" id="edit-date"/></div>
       <div class="form-group"><label>Start Time</label><input type="time" id="edit-start"/></div>
       <div class="form-group"><label>End Time</label><input type="time" id="edit-end"/></div>
+      <div class="form-group"><label>Timezone</label>
+        <select id="edit-tz">
+          <option value="America/New_York">Eastern (ET)</option>
+          <option value="America/Chicago">Central (CT)</option>
+          <option value="America/Denver">Mountain (MT)</option>
+          <option value="America/Los_Angeles">Pacific (PT)</option>
+          <option value="UTC">UTC</option>
+        </select>
+      </div>
       <div class="form-group"><label>Title</label><input type="text" id="edit-title"/></div>
       <div class="form-group"><label>Location</label><input type="text" id="edit-location"/></div>
     </div>
@@ -433,7 +442,7 @@ async function renderEvents(events){
       const card=document.createElement('div');
       card.className='event-card';
       const dayClass=DAY_LABELS[ev.date]||'';
-      const evJson = encodeURIComponent(JSON.stringify({id:ev.id,date:ev.date,startTime:ev.startTime,endTime:ev.endTime,title:ev.title,location:ev.location}));
+      const evJson = encodeURIComponent(JSON.stringify({id:ev.id,date:ev.date,startTime:ev.startTime,endTime:ev.endTime,timezone:ev.timezone,title:ev.title,location:ev.location}));
       card.innerHTML=`
         <div class="event-header">
           <span class="event-time">${fmt12(ev.startTime)} – ${fmt12(ev.endTime)}</span>
@@ -577,6 +586,7 @@ function openEditModal(evJson){
   document.getElementById('edit-date').value    = ev.date;
   document.getElementById('edit-start').value   = ev.startTime;
   document.getElementById('edit-end').value     = ev.endTime;
+  document.getElementById('edit-tz').value      = ev.timezone || 'America/New_York';
   document.getElementById('edit-title').value   = ev.title || '';
   document.getElementById('edit-location').value= ev.location || '';
   document.getElementById('edit-status').style.display='none';
@@ -591,6 +601,7 @@ async function saveEdit(){
     date     : document.getElementById('edit-date').value,
     startTime: document.getElementById('edit-start').value,
     endTime  : document.getElementById('edit-end').value,
+    timezone : document.getElementById('edit-tz').value,
     title    : document.getElementById('edit-title').value,
     location : document.getElementById('edit-location').value,
   };
