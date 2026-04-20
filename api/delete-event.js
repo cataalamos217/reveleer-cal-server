@@ -7,8 +7,8 @@ const FILE_PATH    = 'events.json';
 
 export default async function handler(req, res) {
   if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
-  const { id } = req.body;
-  if (!id) return res.status(400).json({ error: 'No id provided' });
+  const { id, conference } = req.body;
+  if (!id && !conference) return res.status(400).json({ error: 'No id or conference provided' });
 
   try {
     const getRes = await fetch(
@@ -17,7 +17,11 @@ export default async function handler(req, res) {
     );
     const fileData = await getRes.json();
     const current = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8'));
-    const updated = { events: current.events.filter(e => e.id !== id) };
+    const filter = conference
+      ? e => e.conference !== conference
+      : e => e.id !== id;
+    const label = conference ? `conference ${conference}` : `slot ${id}`;
+    const updated = { events: current.events.filter(filter) };
     const encoded = Buffer.from(JSON.stringify(updated, null, 2)).toString('base64');
 
     const putRes = await fetch(
@@ -25,7 +29,7 @@ export default async function handler(req, res) {
       {
         method: 'PUT',
         headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `Delete event slot ${id}`, content: encoded, sha: fileData.sha })
+        body: JSON.stringify({ message: `Delete ${label}`, content: encoded, sha: fileData.sha })
       }
     );
     if (!putRes.ok) return res.status(500).json({ error: 'GitHub write failed' });

@@ -425,6 +425,7 @@ async function renderEvents(events){
       </div>
       <div class="conference-right">
         <span class="slot-badge">${confEvents.length} slots</span>
+        <button class="btn-delete" style="font-size:11px;padding:3px 10px;" onclick="event.stopPropagation();deleteConference('${encodeURIComponent(confName)}', this)">🗑 Delete event</button>
       </div>
     `;
     header.appendChild(chevron);
@@ -615,6 +616,20 @@ async function saveEdit(){
       setTimeout(()=>{ closeEditModal(); loadEvents(); },30000);
     } else { throw new Error(data.error); }
   }catch(e){ status.style.color='#E5573F'; status.textContent='Error: '+e.message; }
+}
+async function deleteConference(confNameEnc, btn){
+  const confName = decodeURIComponent(confNameEnc);
+  if(!confirm(`Delete ALL slots for "${confName}"? This cannot be undone.`)) return;
+  btn.disabled=true; btn.textContent='Deleting...';
+  try{
+    const res = await fetch('/api/delete-event',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({conference: confName})});
+    const data = await res.json();
+    if(data.ok){
+      btn.closest('.conference-folder').style.opacity='.4';
+      btn.textContent='Deleted! Reloading in ~30s...';
+      setTimeout(()=>loadEvents(),30000);
+    } else { throw new Error(data.error); }
+  }catch(e){ btn.disabled=false; btn.textContent='🗑 Delete event'; alert('Error: '+e.message); }
 }
 async function deleteSlot(id, btn){
   if(!confirm('Delete this time slot?')) return;
