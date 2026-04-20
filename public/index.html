@@ -95,6 +95,17 @@
   .copy-btn:hover{border-color:var(--teal);color:var(--teal);}
   .copy-btn.copied{border-color:var(--teal);color:var(--teal);}
 
+  /* Copy link dropdown */
+  .copy-dropdown-wrap{position:relative;display:inline-block;}
+  .copy-dropdown-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;font-weight:700;font-family:'Lato',sans-serif;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .copy-dropdown-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .copy-dropdown-btn.copied{border-color:#22c55e;color:#22c55e;}
+  .copy-dropdown-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:200;min-width:190px;padding:4px 0;display:none;}
+  .copy-dropdown-menu.open{display:block;}
+  .copy-dropdown-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:12px;font-family:'Lato',sans-serif;font-weight:700;color:var(--text);cursor:pointer;transition:background .12s;}
+  .copy-dropdown-item:hover{background:var(--gray);}
+  .copy-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
   /* Create Links form */
   .create-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.75rem;box-shadow:0 1px 4px rgba(0,0,0,.04);}
   .create-box h2{font-family:'Merriweather',serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:1.25rem;}
@@ -456,7 +467,19 @@ async function renderEvents(events){
           <a class="link-btn o365" href="${detail.links.office365}" target="_blank">Office 365</a>
           <a class="link-btn yahoo" href="${detail.links.yahoo}" target="_blank">Yahoo</a>
           <a class="link-btn apple" href="${detail.links.apple}" target="_blank">Apple</a>
-          <button class="copy-btn" onclick="copyLink('${detail.links.office365.replace(/'/g,"\\'")}',this,'Copy O365 link')">Copy O365 link</button>
+          <div class="copy-dropdown-wrap">
+            <button class="copy-dropdown-btn" onclick="toggleDropdown(this)">
+              📋 Copy link <span style="font-size:10px;">▾</span>
+            </button>
+            <div class="copy-dropdown-menu">
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.google.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#4285F4"></span>Copy Google link</div>
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.outlook.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#0078D4"></span>Copy Outlook link</div>
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.outlookcom.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#0067B8"></span>Copy Outlook.com link</div>
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.office365.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#D83B01"></span>Copy Office 365 link</div>
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.yahoo.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#6A0DAD"></span>Copy Yahoo link</div>
+              <div class="copy-dropdown-item" onclick="copyFromDropdown('${detail.links.apple.replace(/'/g,"\\'")}', this)"><span class="copy-dot" style="background:#555555"></span>Copy Apple / iCal link</div>
+            </div>
+          </div>
         </div>
         <div class="card-actions">
           <button class="btn-edit" onclick="openEditModal('${evJson}')">✏️ Edit slot</button>
@@ -471,6 +494,31 @@ async function renderEvents(events){
   }
 }
 
+function toggleDropdown(btn){
+  const menu = btn.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  // Close all open dropdowns
+  document.querySelectorAll('.copy-dropdown-menu.open').forEach(m=>m.classList.remove('open'));
+  if(!isOpen) menu.classList.add('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.copy-dropdown-wrap')){
+    document.querySelectorAll('.copy-dropdown-menu.open').forEach(m=>m.classList.remove('open'));
+  }
+});
+function copyFromDropdown(url, item){
+  const menu = item.closest('.copy-dropdown-menu');
+  const btn  = menu.previousElementSibling;
+  navigator.clipboard.writeText(url).then(()=>{
+    menu.classList.remove('open');
+    btn.classList.add('copied');
+    btn.innerHTML = '✓ Copied!';
+    setTimeout(()=>{
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 Copy link <span style="font-size:10px;">▾</span>';
+    }, 2000);
+  });
+}
 function copyLink(url, btn, label){
   navigator.clipboard.writeText(url).then(()=>{
     btn.textContent='Copied!';
