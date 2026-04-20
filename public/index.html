@@ -136,7 +136,11 @@
   .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);background:#31393F;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;z-index:999;transition:transform .3s;pointer-events:none;}
   .toast.show{transform:translateX(-50%) translateY(0);}
 
-  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}.form-full{grid-column:1;}}
+  .slot-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.6rem;align-items:end;background:var(--gray);border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.5rem;}
+  .slot-row .form-group{margin:0;}
+  .slot-del{padding:6px 10px;font-size:13px;border:1.5px solid #fca5a5;border-radius:6px;background:#fff;color:#dc2626;cursor:pointer;transition:all .15s;align-self:end;}
+  .slot-del:hover{background:#fee2e2;}
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}.form-full{grid-column:1;}.slot-row{grid-template-columns:1fr 1fr;}.slot-del{grid-column:1/-1;}}
 </style>
 </head>
 <body>
@@ -177,6 +181,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('events',this)">📅 Hosted Events</button>
     <button class="tab-btn" onclick="switchTab('create',this)">✨ Create Links</button>
+    <button class="tab-btn" onclick="switchTab('new-event',this)">➕ Create Event</button>
     <button class="tab-btn" onclick="switchTab('api',this)">🔌 API</button>
   </div>
 
@@ -231,6 +236,51 @@
         <h3>Your calendar links</h3>
         <div id="links-output"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Tab: Create Event -->
+  <div class="tab-pane" id="tab-new-event">
+    <div class="create-box">
+      <h2>Create a new hosted event</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem;">This will add the event to Hosted Events for everyone on your team (~30 seconds to appear).</p>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>Conference / Event Name</label>
+          <input type="text" id="ne-conference" placeholder="e.g. ACDIS Annual Conference — VIP Demo"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Event Title (shown in calendar)</label>
+          <input type="text" id="ne-title" placeholder="e.g. VIP Demo Experience with Reveleer"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Location</label>
+          <input type="text" id="ne-location" placeholder="e.g. Booth 306, Hyatt Regency Chicago"/>
+        </div>
+        <div class="form-group">
+          <label>Timezone</label>
+          <select id="ne-tz">
+            <option value="America/New_York">Eastern (ET)</option>
+            <option value="America/Chicago">Central (CT)</option>
+            <option value="America/Denver">Mountain (MT)</option>
+            <option value="America/Los_Angeles">Pacific (PT)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>Description</label>
+          <textarea id="ne-desc" placeholder="Event description..."></textarea>
+        </div>
+      </div>
+
+      <div style="margin:1.5rem 0 .75rem;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Merriweather',serif;font-size:13px;font-weight:700;color:var(--text);">Time Slots</div>
+        <button class="copy-btn" onclick="addSlot()" style="border-color:var(--teal);color:var(--teal);">+ Add Slot</button>
+      </div>
+      <div id="slots-container"></div>
+
+      <button class="generate-btn" onclick="saveEvent()" id="save-event-btn">Save Event to Hosted Events</button>
+      <div id="save-status" style="margin-top:.75rem;font-size:13px;text-align:center;display:none;"></div>
     </div>
   </div>
 
@@ -477,6 +527,108 @@ function generateICS(title, dtStart, dtEnd, location, desc, tz){
   const blob = new Blob([ics], {type:'text/calendar'});
   return URL.createObjectURL(blob);
 }
+
+// ── Create Event ─────────────────────────────────────────
+let slotCount = 0;
+function addSlot(){
+  const idx = slotCount++;
+  const row = document.createElement('div');
+  row.className = 'slot-row';
+  row.id = `slot-${idx}`;
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="sl-date-${idx}"/>
+    </div>
+    <div class="form-group">
+      <label>Start Time</label>
+      <input type="time" id="sl-start-${idx}"/>
+    </div>
+    <div class="form-group">
+      <label>End Time</label>
+      <input type="time" id="sl-end-${idx}"/>
+    </div>
+    <button class="slot-del" onclick="document.getElementById('slot-${idx}').remove()">✕</button>
+  `;
+  document.getElementById('slots-container').appendChild(row);
+}
+
+function slugify(str){
+  return str.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+async function saveEvent(){
+  const conference = document.getElementById('ne-conference').value.trim();
+  const title      = document.getElementById('ne-title').value.trim();
+  const location   = document.getElementById('ne-location').value.trim();
+  const tz         = document.getElementById('ne-tz').value;
+  const desc       = document.getElementById('ne-desc').value.trim();
+
+  if(!conference || !title){
+    alert('Please fill in Conference Name and Event Title.');
+    return;
+  }
+
+  const slots = [];
+  document.querySelectorAll('[id^="slot-"]').forEach(row => {
+    const idx = row.id.replace('slot-','');
+    const date  = document.getElementById(`sl-date-${idx}`)?.value;
+    const start = document.getElementById(`sl-start-${idx}`)?.value;
+    const end   = document.getElementById(`sl-end-${idx}`)?.value;
+    if(date && start && end){
+      const timeTag = start.replace(':','') + (parseInt(start) < 12 ? 'am' : 'pm');
+      const id = slugify(conference) + '-' + date.replace(/-/g,'').slice(4) + '-' + timeTag;
+      slots.push({ id, title, location, date, startTime: start, endTime: end, timezone: tz, description: desc, descriptionHtml: desc.replace(/\n/g,'<br>'), conference });
+    }
+  });
+
+  if(slots.length === 0){
+    alert('Please add at least one time slot.');
+    return;
+  }
+
+  const btn = document.getElementById('save-event-btn');
+  const status = document.getElementById('save-status');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  status.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/save-event', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ events: slots })
+    });
+    const data = await res.json();
+    if(data.ok){
+      status.style.display = 'block';
+      status.style.color = 'var(--teal)';
+      status.textContent = `✓ ${data.added} slot(s) saved! Hosted Events will update in ~30 seconds.`;
+      // Clear form
+      document.getElementById('ne-conference').value='';
+      document.getElementById('ne-title').value='';
+      document.getElementById('ne-location').value='';
+      document.getElementById('ne-desc').value='';
+      document.getElementById('slots-container').innerHTML='';
+      slotCount=0;
+      // Reload events after 35s
+      setTimeout(()=>{ loadEvents(); switchTab('events', document.querySelector('.tab-btn')); }, 35000);
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+  } catch(e){
+    status.style.display = 'block';
+    status.style.color = '#E5573F';
+    status.textContent = `Error: ${e.message}`;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Save Event to Hosted Events';
+}
+
+// Add one slot by default when tab opens
+document.querySelector('[onclick="switchTab(\'new-event\',this)"]').addEventListener('click', ()=>{
+  if(document.getElementById('slots-container').children.length === 0) addSlot();
+});
 
 // ── Password ──────────────────────────────────────────────
 const PW = 'Reveleer2026links';
