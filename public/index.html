@@ -140,6 +140,17 @@
   .slot-row .form-group{margin:0;}
   .slot-del{padding:6px 10px;font-size:13px;border:1.5px solid #fca5a5;border-radius:6px;background:#fff;color:#dc2626;cursor:pointer;transition:all .15s;align-self:end;}
   .slot-del:hover{background:#fee2e2;}
+  .card-actions{display:flex;gap:6px;margin-top:.6rem;}
+  .btn-edit{padding:4px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid var(--teal);border-radius:6px;background:#fff;color:var(--teal);cursor:pointer;transition:all .15s;}
+  .btn-edit:hover{background:var(--teal);color:#fff;}
+  .btn-delete{padding:4px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid #fca5a5;border-radius:6px;background:#fff;color:#dc2626;cursor:pointer;transition:all .15s;}
+  .btn-delete:hover{background:#fee2e2;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;}
+  .modal{background:#fff;border-radius:14px;padding:1.75rem;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+  .modal h3{font-family:'Merriweather',serif;font-size:15px;font-weight:700;margin-bottom:1.25rem;}
+  .modal-actions{display:flex;gap:.75rem;margin-top:1.25rem;}
+  .modal-save{flex:1;padding:.65rem;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;}
+  .modal-cancel{flex:1;padding:.65rem;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;background:var(--gray);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;}
   @media(max-width:600px){.form-grid{grid-template-columns:1fr;}.form-full{grid-column:1;}.slot-row{grid-template-columns:1fr 1fr;}.slot-del{grid-column:1/-1;}}
 </style>
 </head>
@@ -160,14 +171,14 @@
     <div class="logo-dot">
       <svg viewBox="0 0 20 20" fill="none"><path d="M10 3C6.5 3 4 5.5 5 9C6 12 9 14 10 17C11 14 14 12 15 9C16 5.5 13.5 3 10 3Z" fill="white" opacity=".9"/></svg>
     </div>
-    <span class="logo-text">Calend<span>ee</span>r</span>
+    <span class="logo-text">Calend<span style="color:#E5573F">ee</span>r</span>
   </div>
   <div class="status-badge"><div class="status-dot"></div> Server live</div>
 </header>
 
 <div class="hero">
   <div class="hero-bar"></div>
-  <h1>Calendeer</h1>
+  <h1>Calend<span style="color:#E5573F">ee</span>r</h1>
   <p>Hosted event data for all calendar platforms — Google · Outlook · Outlook.com · Office 365 · Yahoo · Apple</p>
   <div class="hero-stats">
     <div class="stat"><div class="stat-num" id="event-count">—</div><div class="stat-lbl">Events loaded</div></div>
@@ -306,8 +317,26 @@
   </div>
 </main>
 
-<footer>© 2026 <span>Calend<span style="color:var(--teal)">ee</span>r</span> · Calendar Link Server</footer>
+<footer>© 2026 <span>Calend<span style="color:#E5573F">ee</span>r</span> · Calendar Link Server</footer>
 <div class="toast" id="toast"></div>
+<div id="edit-modal" style="display:none;" class="modal-overlay">
+  <div class="modal">
+    <h3>Edit Time Slot</h3>
+    <input type="hidden" id="edit-id"/>
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-group"><label>Date</label><input type="date" id="edit-date"/></div>
+      <div class="form-group"><label>Start Time</label><input type="time" id="edit-start"/></div>
+      <div class="form-group"><label>End Time</label><input type="time" id="edit-end"/></div>
+      <div class="form-group"><label>Title</label><input type="text" id="edit-title"/></div>
+      <div class="form-group"><label>Location</label><input type="text" id="edit-location"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="modal-save" onclick="saveEdit()">Save Changes</button>
+    </div>
+    <div id="edit-status" style="font-size:12px;text-align:center;margin-top:.5rem;display:none;"></div>
+  </div>
+</div>
 
 <script>
 const DAY_LABELS = {'2026-04-20':'apr20','2026-04-21':'apr21','2026-04-22':'apr22'};
@@ -404,10 +433,11 @@ async function renderEvents(events){
       const card=document.createElement('div');
       card.className='event-card';
       const dayClass=DAY_LABELS[ev.date]||'';
+      const evJson = encodeURIComponent(JSON.stringify({id:ev.id,date:ev.date,startTime:ev.startTime,endTime:ev.endTime,title:ev.title,location:ev.location}));
       card.innerHTML=`
         <div class="event-header">
           <span class="event-time">${fmt12(ev.startTime)} – ${fmt12(ev.endTime)}</span>
-          <span class="event-date-badge ${dayClass}">${DAY_NAMES[ev.date]}</span>
+          <span class="event-date-badge ${dayClass}">${DAY_NAMES[ev.date]||ev.date}</span>
         </div>
         <div class="links-grid">
           <a class="link-btn google" href="${detail.links.google}" target="_blank">Google</a>
@@ -417,6 +447,10 @@ async function renderEvents(events){
           <a class="link-btn yahoo" href="${detail.links.yahoo}" target="_blank">Yahoo</a>
           <a class="link-btn apple" href="${detail.links.apple}" target="_blank">Apple</a>
           <button class="copy-btn" onclick="copyLink('${detail.links.office365.replace(/'/g,"\\'")}',this,'Copy O365 link')">Copy O365 link</button>
+        </div>
+        <div class="card-actions">
+          <button class="btn-edit" onclick="openEditModal('${evJson}')">✏️ Edit slot</button>
+          <button class="btn-delete" onclick="deleteSlot('${ev.id}', this)">🗑 Delete slot</button>
         </div>
       `;
       body.appendChild(card);
@@ -525,6 +559,55 @@ function generateICS(title, dtStart, dtEnd, location, desc, tz){
   ].join('\r\n');
   const blob = new Blob([ics], {type:'text/calendar'});
   return URL.createObjectURL(blob);
+}
+
+// ── Edit / Delete ────────────────────────────────────────
+function openEditModal(evJson){
+  const ev = JSON.parse(decodeURIComponent(evJson));
+  document.getElementById('edit-id').value      = ev.id;
+  document.getElementById('edit-date').value    = ev.date;
+  document.getElementById('edit-start').value   = ev.startTime;
+  document.getElementById('edit-end').value     = ev.endTime;
+  document.getElementById('edit-title').value   = ev.title || '';
+  document.getElementById('edit-location').value= ev.location || '';
+  document.getElementById('edit-status').style.display='none';
+  document.getElementById('edit-modal').style.display='flex';
+}
+function closeEditModal(){
+  document.getElementById('edit-modal').style.display='none';
+}
+async function saveEdit(){
+  const id       = document.getElementById('edit-id').value;
+  const updates  = {
+    date     : document.getElementById('edit-date').value,
+    startTime: document.getElementById('edit-start').value,
+    endTime  : document.getElementById('edit-end').value,
+    title    : document.getElementById('edit-title').value,
+    location : document.getElementById('edit-location').value,
+  };
+  const status = document.getElementById('edit-status');
+  status.style.display='block'; status.style.color='var(--muted)'; status.textContent='Saving...';
+  try{
+    const res = await fetch('/api/update-event',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,updates})});
+    const data = await res.json();
+    if(data.ok){
+      status.style.color='var(--teal)'; status.textContent='✓ Saved! Reloading in ~30s...';
+      setTimeout(()=>{ closeEditModal(); loadEvents(); },30000);
+    } else { throw new Error(data.error); }
+  }catch(e){ status.style.color='#E5573F'; status.textContent='Error: '+e.message; }
+}
+async function deleteSlot(id, btn){
+  if(!confirm('Delete this time slot?')) return;
+  btn.disabled=true; btn.textContent='Deleting...';
+  try{
+    const res = await fetch('/api/delete-event',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const data = await res.json();
+    if(data.ok){
+      btn.closest('.event-card').style.opacity='.4';
+      btn.textContent='Deleted! Reloading in ~30s...';
+      setTimeout(()=>loadEvents(),30000);
+    } else { throw new Error(data.error); }
+  }catch(e){ btn.disabled=false; btn.textContent='🗑 Delete slot'; alert('Error: '+e.message); }
 }
 
 // ── Create Event ─────────────────────────────────────────
