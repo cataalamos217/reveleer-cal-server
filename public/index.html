@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Reveleer — Calendar Link Server</title>
+<title>Calendeer — Calendar Link Server</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,12 +14,12 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Lato',Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh;}
 
-  header{background:var(--white);border-bottom:3px solid var(--red);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  header{background:var(--white);border-bottom:3px solid var(--teal);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
   .logo{display:flex;align-items:center;gap:10px;}
-  .logo-dot{width:34px;height:34px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .logo-dot{width:34px;height:34px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;}
   .logo-dot svg{width:18px;height:18px;}
   .logo-text{font-family:'Merriweather',serif;font-size:17px;font-weight:700;color:var(--text);}
-  .logo-text span{color:var(--red);}
+  .logo-text span{color:var(--teal);}
   .status-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:var(--gray);padding:4px 12px;border-radius:20px;border:1px solid var(--border);}
   .status-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;}
 
@@ -33,6 +33,15 @@
   .stat-lbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;}
 
   main{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:0;margin-bottom:1.5rem;background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .tab-btn{flex:1;padding:.75rem 1rem;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;border-right:1px solid var(--border);}
+  .tab-btn:last-child{border-right:none;}
+  .tab-btn.active{background:var(--teal);color:#fff;}
+  .tab-btn:hover:not(.active){background:var(--gray);}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
 
   /* Conference folder */
   .conference-folder{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
@@ -51,7 +60,6 @@
   .conference-body{border-top:1px solid var(--border);padding:1.25rem 1.5rem 1.5rem;}
   .conference-body.collapsed{display:none;}
 
-  /* Date section inside folder */
   .day-header{font-family:'Merriweather',serif;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:1.25rem 0 .6rem;padding-bottom:.4rem;border-bottom:2px solid var(--teal);}
   .day-header:first-child{margin-top:0;}
 
@@ -77,6 +85,31 @@
   .copy-btn:hover{border-color:var(--teal);color:var(--teal);}
   .copy-btn.copied{border-color:var(--teal);color:var(--teal);}
 
+  /* Create Links form */
+  .create-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.75rem;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+  .create-box h2{font-family:'Merriweather',serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:1.25rem;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .form-full{grid-column:1/-1;}
+  .form-group{display:flex;flex-direction:column;gap:5px;}
+  .form-group label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+  .form-group input,.form-group textarea,.form-group select{font-family:'Lato',sans-serif;font-size:13px;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;background:var(--gray);color:var(--text);transition:border .15s;outline:none;}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--teal);background:var(--white);}
+  .form-group textarea{resize:vertical;min-height:80px;}
+  .generate-btn{margin-top:1.25rem;width:100%;padding:.75rem;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;}
+  .generate-btn:hover{opacity:.88;}
+
+  .generated-links{margin-top:1.5rem;display:none;}
+  .generated-links h3{font-family:'Merriweather',serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:2px solid var(--teal);}
+  .gen-link-row{display:flex;align-items:center;gap:10px;padding:.6rem 0;border-bottom:1px solid var(--gray);}
+  .gen-link-row:last-child{border-bottom:none;}
+  .gen-platform{font-size:12px;font-weight:700;width:90px;color:var(--muted);}
+  .gen-url{font-family:monospace;font-size:11px;color:var(--teal);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .gen-copy{padding:3px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid var(--border);border-radius:6px;background:var(--white);color:var(--muted);cursor:pointer;flex-shrink:0;transition:all .15s;}
+  .gen-copy:hover{border-color:var(--teal);color:var(--teal);}
+  .gen-open{padding:3px 10px;font-size:11px;font-family:'Lato',sans-serif;border:1.5px solid var(--teal);border-radius:6px;background:var(--white);color:var(--teal);cursor:pointer;flex-shrink:0;text-decoration:none;transition:all .15s;}
+  .gen-open:hover{background:var(--teal);color:#fff;}
+
+  /* API box */
   .api-box{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2rem;}
   .api-title{font-family:'Merriweather',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:1rem;}
   .api-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray);font-size:13px;}
@@ -88,10 +121,12 @@
   .loading{text-align:center;padding:3rem;color:var(--muted);}
 
   footer{text-align:center;padding:1.5rem;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--white);}
-  footer span{color:var(--red);}
+  footer span{color:var(--teal);}
 
   .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);background:#31393F;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;z-index:999;transition:transform .3s;pointer-events:none;}
   .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}.form-full{grid-column:1;}}
 </style>
 </head>
 <body>
@@ -101,7 +136,7 @@
     <div class="logo-dot">
       <svg viewBox="0 0 20 20" fill="none"><path d="M10 3C6.5 3 4 5.5 5 9C6 12 9 14 10 17C11 14 14 12 15 9C16 5.5 13.5 3 10 3Z" fill="white" opacity=".9"/></svg>
     </div>
-    <span class="logo-text">Revel<span>ee</span>r</span>
+    <span class="logo-text">Calend<span>ee</span>r</span>
   </div>
   <div class="status-badge"><div class="status-dot"></div> Server live</div>
 </header>
@@ -119,34 +154,102 @@
 </div>
 
 <main>
-  <div id="events-container"><div class="loading">Loading events...</div></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('events',this)">📅 Hosted Events</button>
+    <button class="tab-btn" onclick="switchTab('create',this)">✨ Create Links</button>
+    <button class="tab-btn" onclick="switchTab('api',this)">🔌 API</button>
+  </div>
 
-  <div class="api-box">
-    <div class="api-title">API endpoints</div>
-    <div class="api-row">
-      <span class="api-method">GET</span>
-      <span class="api-url">/api/events</span>
-      <span class="api-desc">List all events</span>
+  <!-- Tab: Hosted Events -->
+  <div class="tab-pane active" id="tab-events">
+    <div id="events-container"><div class="loading">Loading events...</div></div>
+  </div>
+
+  <!-- Tab: Create Links -->
+  <div class="tab-pane" id="tab-create">
+    <div class="create-box">
+      <h2>Generate calendar links for any event</h2>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>Event Title</label>
+          <input type="text" id="c-title" placeholder="e.g. VIP Demo Experience with Reveleer"/>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="c-date"/>
+        </div>
+        <div class="form-group">
+          <label>Timezone</label>
+          <select id="c-tz">
+            <option value="America/New_York">Eastern (ET)</option>
+            <option value="America/Chicago">Central (CT)</option>
+            <option value="America/Denver">Mountain (MT)</option>
+            <option value="America/Los_Angeles">Pacific (PT)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" id="c-start"/>
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="time" id="c-end"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Location</label>
+          <input type="text" id="c-location" placeholder="e.g. Booth 306, Hyatt Regency Chicago"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Description</label>
+          <textarea id="c-desc" placeholder="Event description..."></textarea>
+        </div>
+      </div>
+      <button class="generate-btn" onclick="generateLinks()">Generate Calendar Links</button>
+
+      <div class="generated-links" id="generated-links">
+        <h3>Your calendar links</h3>
+        <div id="links-output"></div>
+      </div>
     </div>
-    <div class="api-row">
-      <span class="api-method">GET</span>
-      <span class="api-url">/api/event/[id]</span>
-      <span class="api-desc">Get event + all 6 calendar links</span>
-    </div>
-    <div class="api-row">
-      <span class="api-method">GET</span>
-      <span class="api-url">/api/event/[id]?format=ical</span>
-      <span class="api-desc">Download .ics file for any event</span>
+  </div>
+
+  <!-- Tab: API -->
+  <div class="tab-pane" id="tab-api">
+    <div class="api-box" style="margin-top:0;">
+      <div class="api-title">API endpoints</div>
+      <div class="api-row">
+        <span class="api-method">GET</span>
+        <span class="api-url">/api/events</span>
+        <span class="api-desc">List all events</span>
+      </div>
+      <div class="api-row">
+        <span class="api-method">GET</span>
+        <span class="api-url">/api/event/[id]</span>
+        <span class="api-desc">Get event + all 6 calendar links</span>
+      </div>
+      <div class="api-row">
+        <span class="api-method">GET</span>
+        <span class="api-url">/api/event/[id]?format=ical</span>
+        <span class="api-desc">Download .ics file for any event</span>
+      </div>
     </div>
   </div>
 </main>
 
-<footer>© 2026 <span>Reveleer</span> · Calendar Link Server · events@reveleer.com</footer>
+<footer>© 2026 <span>Calend<span style="color:var(--teal)">ee</span>r</span> · Calendar Link Server</footer>
 <div class="toast" id="toast"></div>
 
 <script>
 const DAY_LABELS = {'2026-04-20':'apr20','2026-04-21':'apr21','2026-04-22':'apr22'};
 const DAY_NAMES  = {'2026-04-20':'April 20','2026-04-21':'April 21','2026-04-22':'April 22'};
+
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
 
 function fmt12(t){
   const[h,m]=t.split(':').map(Number);
@@ -174,37 +277,22 @@ async function loadEvents(){
 async function renderEvents(events){
   const container=document.getElementById('events-container');
   container.innerHTML='';
-
-  // Group by conference
   const byConf = {};
   for(const ev of events){
     const conf = ev.conference || 'Other';
     if(!byConf[conf]) byConf[conf]=[];
     byConf[conf].push(ev);
   }
-
   document.getElementById('conf-count').textContent = Object.keys(byConf).length;
-
   for(const [confName, confEvents] of Object.entries(byConf)){
-    // Fetch all event details for this conference
-    const details = await Promise.all(
-      confEvents.map(ev => fetch(`/api/event/${ev.id}`).then(r=>r.json()))
-    );
-
-    // Build date range label
+    const details = await Promise.all(confEvents.map(ev => fetch(`/api/event/${ev.id}`).then(r=>r.json())));
     const dates = [...new Set(confEvents.map(e=>e.date))].sort();
     const d0 = dates[0], d1 = dates[dates.length-1];
-    const dateRange = dates.length===1
-      ? DAY_NAMES[d0]+', 2026'
-      : `${DAY_NAMES[d0]} – ${DAY_NAMES[d1]}, 2026`;
-
-    // Folder wrapper
+    const dateRange = dates.length===1 ? DAY_NAMES[d0]+', 2026' : `${DAY_NAMES[d0]} – ${DAY_NAMES[d1]}, 2026`;
     const folder = document.createElement('div');
     folder.className='conference-folder';
-
     const body = document.createElement('div');
-    body.className='conference-body'; // starts open
-
+    body.className='conference-body';
     const chevron = document.createElement('svg');
     chevron.setAttribute('viewBox','0 0 24 24');
     chevron.setAttribute('fill','none');
@@ -214,7 +302,6 @@ async function renderEvents(events){
     chevron.setAttribute('stroke-linejoin','round');
     chevron.className='chevron open';
     chevron.innerHTML='<polyline points="6 9 12 15 18 9"></polyline>';
-
     const header = document.createElement('div');
     header.className='conference-header';
     header.innerHTML=`
@@ -235,8 +322,6 @@ async function renderEvents(events){
     `;
     header.appendChild(chevron);
     header.addEventListener('click', ()=>toggleFolder(body, chevron));
-
-    // Render events by day inside body
     let currentDay='';
     confEvents.forEach((ev, i)=>{
       const detail = details[i];
@@ -247,7 +332,6 @@ async function renderEvents(events){
         dh.textContent=DAY_NAMES[ev.date]+', 2026';
         body.appendChild(dh);
       }
-
       const card=document.createElement('div');
       card.className='event-card';
       const dayClass=DAY_LABELS[ev.date]||'';
@@ -263,24 +347,115 @@ async function renderEvents(events){
           <a class="link-btn o365" href="${detail.links.office365}" target="_blank">Office 365</a>
           <a class="link-btn yahoo" href="${detail.links.yahoo}" target="_blank">Yahoo</a>
           <a class="link-btn apple" href="${detail.links.apple}" target="_blank">Apple</a>
-          <button class="copy-btn" onclick="copyO365('${detail.links.office365.replace(/'/g,"\\'")}',this)">Copy O365 link</button>
+          <button class="copy-btn" onclick="copyLink('${detail.links.office365.replace(/'/g,"\\'")}',this,'Copy O365 link')">Copy O365 link</button>
         </div>
       `;
       body.appendChild(card);
     });
-
     folder.appendChild(header);
     folder.appendChild(body);
     container.appendChild(folder);
   }
 }
 
-function copyO365(url,btn){
+function copyLink(url, btn, label){
   navigator.clipboard.writeText(url).then(()=>{
     btn.textContent='Copied!';
     btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='Copy O365 link';btn.classList.remove('copied');},2000);
+    setTimeout(()=>{btn.textContent=label;btn.classList.remove('copied');},2000);
   });
+}
+
+// ── Create Links ──────────────────────────────────────────
+function pad(n){return String(n).padStart(2,'0');}
+
+function toDateTimeLocal(date, time, tz){
+  // Returns ISO-like string for calendar URLs
+  const [y,m,d] = date.split('-');
+  const [h,min] = time.split(':');
+  return `${y}${m}${d}T${h}${min}00`;
+}
+
+function toOffsetISO(date, time, tz){
+  const offsets = {
+    'America/New_York': '-04:00',
+    'America/Chicago': '-05:00',
+    'America/Denver': '-06:00',
+    'America/Los_Angeles': '-07:00',
+    'UTC': '+00:00'
+  };
+  const off = offsets[tz] || '+00:00';
+  return `${date}T${time}:00${off}`;
+}
+
+function generateLinks(){
+  const title    = document.getElementById('c-title').value.trim();
+  const date     = document.getElementById('c-date').value;
+  const startT   = document.getElementById('c-start').value;
+  const endT     = document.getElementById('c-end').value;
+  const location = document.getElementById('c-location').value.trim();
+  const desc     = document.getElementById('c-desc').value.trim();
+  const tz       = document.getElementById('c-tz').value;
+
+  if(!title || !date || !startT || !endT){
+    alert('Please fill in Title, Date, Start Time, and End Time.');
+    return;
+  }
+
+  const dtStart = toDateTimeLocal(date, startT, tz);
+  const dtEnd   = toDateTimeLocal(date, endT, tz);
+  const startISO = toOffsetISO(date, startT, tz);
+  const endISO   = toOffsetISO(date, endT, tz);
+
+  const enc = encodeURIComponent;
+
+  const links = {
+    'Google':     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(title)}&dates=${dtStart}/${dtEnd}&details=${enc(desc)}&location=${enc(location)}&ctz=${enc(tz)}`,
+    'Outlook.com': `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(startISO)}&enddt=${enc(endISO)}&subject=${enc(title)}&body=${enc(desc)}&location=${enc(location)}`,
+    'Office 365': `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(startISO)}&enddt=${enc(endISO)}&subject=${enc(title)}&body=${enc(desc)}&location=${enc(location)}`,
+    'Yahoo':      `https://calendar.yahoo.com/?v=60&title=${enc(title)}&st=${dtStart}&et=${dtEnd}&desc=${enc(desc)}&in_loc=${enc(location)}`,
+    'Apple / Outlook': generateICS(title, dtStart, dtEnd, location, desc, tz)
+  };
+
+  const output = document.getElementById('links-output');
+  output.innerHTML = '';
+  for(const [platform, url] of Object.entries(links)){
+    const isICS = platform === 'Apple / Outlook';
+    const row = document.createElement('div');
+    row.className = 'gen-link-row';
+    row.innerHTML = `
+      <span class="gen-platform">${platform}</span>
+      <span class="gen-url">${isICS ? '(download .ics file)' : url}</span>
+      ${isICS
+        ? `<a class="gen-open" href="${url}" download="event.ics">Download</a>`
+        : `<button class="gen-copy" onclick="copyLink('${url.replace(/'/g,"\\'")}',this,'Copy')">Copy</button>
+           <a class="gen-open" href="${url}" target="_blank">Open</a>`
+      }
+    `;
+    output.appendChild(row);
+  }
+
+  document.getElementById('generated-links').style.display = 'block';
+}
+
+function generateICS(title, dtStart, dtEnd, location, desc, tz){
+  const uid = `${Date.now()}@calendeer`;
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Calendeer//EN',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTART;TZID=${tz}:${dtStart}`,
+    `DTEND;TZID=${tz}:${dtEnd}`,
+    `SUMMARY:${title}`,
+    `LOCATION:${location}`,
+    `DESCRIPTION:${desc.replace(/\n/g,'\\n')}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], {type:'text/calendar'});
+  return URL.createObjectURL(blob);
 }
 
 loadEvents();
