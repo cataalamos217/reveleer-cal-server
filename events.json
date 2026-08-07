@@ -387,6 +387,18 @@
       "description": "Networking Dinner at Waterman Grille\n\nJoin us for an evening on the waterfront patio the night before the conference kicks off. Come hungry and ready to connect!\n\nWhere: Waterman Grille\n4 Richmond Sq, Providence, RI\n\nIf your plans change, please let us know at events@reveleer.com",
       "descriptionHtml": "<strong>Networking Dinner at Waterman Grille</strong><br><br>Join us for an evening on the waterfront patio the night before the conference kicks off. Come hungry and ready to connect!<br><br><strong>Where:</strong> Waterman Grille<br>4 Richmond Sq, Providence, RI<br><br>If your plans change, please let us know at <a href='mailto:events@reveleer.com'>events@reveleer.com</a>",
       "conference": "NAACOS Northeast Regional"
+    },
+    {
+      "id": "rise-west-sep2-600pm",
+      "title": "Networking Dinner at Three Three Seven",
+      "conference": "RISE West 2026",
+      "location": "Three Three Seven, 629 J Street, San Diego, CA 92101",
+      "date": "2026-09-02",
+      "startTime": "18:00",
+      "endTime": "20:00",
+      "timezone": "America/Los_Angeles",
+      "description": "Thank you for RSVPing to our networking dinner at Three Three Seven.\n\nChef Jay Fernell will guide you through eleven courses that trace his path from Carencro, Louisiana, to the seafood and farms of Southern California. The table is small, ten seats total, so come ready for a slower, closer evening than the usual conference dinner.\n\nIf you are departing from the Manchester Grand Hyatt, we will meet in the lobby at 5:30 pm to walk over as a group (about a 15 min walk).\n\nQuestions? Email events@reveleer.com",
+      "descriptionHtml": "<p>Thank you for RSVPing to our networking dinner at Three Three Seven.</p><p>Chef Jay Fernell will guide you through eleven courses that trace his path from Carencro, Louisiana, to the seafood and farms of Southern California. The table is small &mdash; ten seats total &mdash; so come ready for a slower, closer evening than the usual conference dinner.</p><p>If you are departing from the Manchester Grand Hyatt, we will meet in the lobby at 5:30 pm to walk over as a group (about a 15 min walk).</p><p>Questions? Email events@reveleer.com</p>"
     }
   ]
 }
