@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Reveleer//CalGen//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DESCRIPTION:VIP Demo Experience with Reveleer at NCQA Health Innovation Summit.\n\nIn this session you will see:\n- How Clinical Quality supports annual HEDIS reporting and audit prep through automated retrieval and AI-driven abstraction\n- How Care Gap Manager keeps quality and risk gaps closing year-round\, not just at reporting time\n- How to get ahead of NCQA's shift to fully digital\, ECDS-based reporting\n\nLocation: Georgia World Congress Center\, Atlanta\, GA\nFind us: Reveleer Booth 126\n\nQuestions? Additional colleagues are welcome to join. Email events@reveleer.com.
+X-ALT-DESC;FMTTYPE=text/html:<p>VIP Demo Experience with Reveleer at NCQA Health Innovation Summit.</p>
+<p>In this session you will see:</p>
+<ul>
+<li>How Clinical Quality supports annual HEDIS reporting and audit prep through automated retrieval and AI-driven abstraction</li>
+<li>How Care Gap Manager keeps quality and risk gaps closing year-round, not just at reporting time</li>
+<li>How to get ahead of NCQA&rsquo;s shift to fully digital, ECDS-based reporting</li>
+</ul>
+<p>Location: Georgia World Congress Center, Atlanta, GA<br>Find us: Reveleer Booth 126</p>
+<p>Questions? Additional colleagues are welcome to join. Email <a href="mailto:events@reveleer.com">events@reveleer.com</a>.</p>
+UID:reveleer-ncqa-oct15-145pm@reveleer.com
+SUMMARY:VIP Demo Experience with Reveleer
+DTSTART;TZID=America/New_York:20261015T134500
+DTEND;TZID=America/New_York:20261015T140000
+LOCATION:Georgia World Congress Center\, Atlanta\, GA - Reveleer Booth 126
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
