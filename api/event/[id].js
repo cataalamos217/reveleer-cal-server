@@ -168,11 +168,11 @@ module.exports = function handler(req, res) {
 
   const links = {
     google:     `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc(event.title)}&dates=${gcStart}/${gcEnd}&details=${enc(event.description)}&location=${enc(event.location)}&ctz=${getGCalTz(tz)}`,
-    outlook:    staticIcsUrl,
+    outlook:    icalUrl,
     outlookcom: `https://outlook.live.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
     office365:  `https://outlook.office.com/calendar/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${enc(localStart)}&enddt=${enc(localEnd)}&subject=${enc(event.title)}&body=${encOutlook(event.description)}&location=${enc(event.location)}`,
     yahoo:      `https://calendar.yahoo.com/?v=60&title=${enc(event.title)}&st=${gcStart}&et=${gcEnd}&desc=${enc(event.description)}&in_loc=${enc(event.location)}`,
-    apple:      staticIcsUrl
+    apple:      icalUrl
   };
 
   const accept = req.headers['accept'] || '';
